@@ -1,4 +1,4 @@
 package com.techelevator.tenmo.services;
 
-public class UserService {
+public class UserService  {
 }

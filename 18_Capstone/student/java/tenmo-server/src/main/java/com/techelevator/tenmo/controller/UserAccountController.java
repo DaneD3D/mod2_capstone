@@ -24,7 +24,7 @@ public class UserAccountController {
         }
 
     @RequestMapping(path = "/balance/{id}", method = RequestMethod.GET)
-    public BigDecimal getCurrentBalance(@PathVariable long id, Principal principal) {
+    public BigDecimal getCurrentBalance(@PathVariable Integer id, Principal principal) {
         System.out.println(principal.getName());
         return accountDao.getCurrentBalance(id);
     }
@@ -33,6 +33,7 @@ public class UserAccountController {
     public Transfer transfer(@RequestBody Transfer transfer) {
         return accountDao.transferMoney(transfer);
     }
+
 }
 
 

@@ -6,13 +6,15 @@ import java.math.BigDecimal;
 
 public interface AccountDao  {
 
-    BigDecimal getCurrentBalance(Long userId);
+    BigDecimal getCurrentBalance(Integer userId);
 
-    boolean isBalanceEnough(BigDecimal amount, Long userId);
+    boolean isBalanceEnough(BigDecimal amount, Integer userId);
 
-    void withdrawMoney(BigDecimal amount, Long userId);
+    void withdrawMoney(BigDecimal amount, Integer userId);
 
-    void depositMoney(BigDecimal amount, Long userId);
+    void depositMoney(BigDecimal amount, Integer userId);
 
     Transfer transferMoney(Transfer transfer);
+
+    Transfer getTransferById(Integer transferId);
 }
