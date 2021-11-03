@@ -12,7 +12,7 @@ public class User {
    private String password;
    private boolean activated;
    private Set<Authority> authorities = new HashSet<>();
-   private BigDecimal balance;
+
 
    public User() { }
 
@@ -63,13 +63,7 @@ public class User {
       this.authorities = authorities;
    }
 
-   public BigDecimal getBalance() {
-      return balance;
-   }
 
-   public void setBalance(BigDecimal balance) {
-      this.balance = balance;
-   }
 
    public void setAuthorities(String authorities) {
       String[] roles = authorities.split(",");
