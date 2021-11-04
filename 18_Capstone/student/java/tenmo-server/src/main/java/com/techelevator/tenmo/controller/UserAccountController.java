@@ -50,7 +50,7 @@ public class UserAccountController {
 
     @RequestMapping(path = "/userTransfers/{id}", method = RequestMethod.GET)
     public List<TransferInfo> getUserTransfers(@PathVariable Integer id) {
-        return getUserTransfers(id);
+        return accountDao.getUserTransfers(id);
     }
 }
 

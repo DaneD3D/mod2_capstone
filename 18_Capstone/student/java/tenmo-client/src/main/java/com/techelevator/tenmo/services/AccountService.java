@@ -3,6 +3,7 @@ package com.techelevator.tenmo.services;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferInfo;
 import com.techelevator.tenmo.model.User;
 import org.openqa.selenium.json.Json;
 import org.springframework.http.*;
@@ -59,17 +60,31 @@ public class AccountService {
 
     }
 
-    public Transfer[] getTransfers(){
-        Transfer[] transfers = null;
+    public TransferInfo[] getTransfers(){
+        TransferInfo[] transfers = null;
 
         try{
-            ResponseEntity<Transfer[]> response =
-                    restTemplate.exchange(API_BASE_URL + "transfer", HttpMethod.GET, makeAuthEntity(), Transfer[].class);
+            ResponseEntity<TransferInfo[]> response =
+                    restTemplate.exchange(API_BASE_URL + "userTransfers/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(), TransferInfo[].class);
             transfers = response.getBody();
         }catch (RestClientResponseException | ResourceAccessException e){
             System.out.println(e.getMessage());
         }
         return transfers;
+
+    }
+
+    public TransferInfo getTransferByID(Integer transferId){
+        TransferInfo transfer = null;
+
+        try{
+            ResponseEntity<TransferInfo> response =
+                    restTemplate.exchange(API_BASE_URL + "transfer/" + transferId, HttpMethod.GET, makeAuthEntity(), TransferInfo.class);
+            transfer = response.getBody();
+        }catch (RestClientResponseException | ResourceAccessException e){
+            System.out.println(e.getMessage());
+        }
+        return transfer;
 
     }
 

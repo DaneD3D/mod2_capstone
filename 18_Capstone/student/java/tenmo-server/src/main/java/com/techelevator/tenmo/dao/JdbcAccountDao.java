@@ -84,6 +84,7 @@ public class JdbcAccountDao implements AccountDao{
     @Override
     public List<TransferInfo> getUserTransfers(Integer userId) {
         List<TransferInfo> transfers = new ArrayList<>();
+        Integer accountId = getAccountID(userId);
         String sql = "SELECT transfer_id, transfer_type_desc, transfer_status_desc, " +
                 "(SELECT username FROM users u INNER JOIN accounts a ON a.user_id = u.user_id WHERE account_id = account_from) AS userNameFrom, " +
                 "(SELECT username FROM users u INNER JOIN accounts a ON a.user_id = u.user_id WHERE account_id = account_to) AS userNameTo, amount " +
@@ -91,7 +92,7 @@ public class JdbcAccountDao implements AccountDao{
                 "INNER JOIN transfer_types tt ON tt.transfer_type_id = t.transfer_type_id " +
                 "INNER JOIN transfer_statuses ts ON ts.transfer_status_id = t.transfer_status_id " +
                 "WHERE account_from = ? OR account_to = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId, userId);
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId, accountId);
         while (results.next()) {
             TransferInfo transferInfo = mapRowToTransferInfo(results);
             transfers.add(transferInfo);

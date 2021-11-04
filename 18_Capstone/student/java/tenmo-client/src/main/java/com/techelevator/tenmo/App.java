@@ -1,14 +1,12 @@
 package com.techelevator.tenmo;
 
-import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.User;
-import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
 import com.techelevator.tenmo.services.UserService;
 import com.techelevator.view.ConsoleService;
+import io.cucumber.java.sl.In;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -91,11 +89,51 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void viewTransferHistory() {
 		// TODO Auto-generated method stub
-		
+		System.out.println("-------------------------------------------");
+		System.out.println("Transfers");
+		System.out.println(String.format("%-12s%-15s%-12s", "ID", "From/To", "Amount"));
+		System.out.println("-------------------------------------------");
+
+
+
+		TransferInfo[] transfers = accountService.getTransfers();
+		for (TransferInfo transfer: transfers){
+			String from_to = "";
+			if(transfer.getFrom().equals(currentUser.getUser().getUsername())){
+				from_to = "To " + transfer.getTo();
+			}else{
+				from_to = "From " + transfer.getFrom();
+			}
+			System.out.println(String.format("%-12d%-12s%-12s",transfer.getId(),from_to ,transfer.getAmount()));
+		}
+		String userIdSelection = console.getUserInput("Please enter transfer ID to view details (0 to cancel)");
+		try {
+			Integer userPick = Integer.parseInt(userIdSelection);
+			if(userPick == 0){
+				return;
+			}else{
+				System.out.println("-------------------------------------------");
+				System.out.println("Transfer Details");
+				System.out.println("-------------------------------------------");
+				TransferInfo returnedTransfer = accountService.getTransferByID(userPick);
+				System.out.println("Id: "+ returnedTransfer.getId());
+				System.out.println("From: "+ returnedTransfer.getFrom());
+				System.out.println("To: "+ returnedTransfer.getTo());
+				System.out.println("Type: "+ returnedTransfer.getType());
+				System.out.println("Status: "+ returnedTransfer.getStatus());
+				System.out.println("Amount: "+ returnedTransfer.getAmount());
+
+			}
+		}catch (NumberFormatException e){
+			System.out.println(e.getMessage());
+		}
+
 	}
 
 	private void viewPendingRequests() {
 		// TODO Auto-generated method stub
+
+
 		
 	}
 
