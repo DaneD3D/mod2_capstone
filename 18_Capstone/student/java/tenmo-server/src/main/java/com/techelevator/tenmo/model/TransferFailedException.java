@@ -3,7 +3,7 @@ package com.techelevator.tenmo.model;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Transfer Failed.")
+@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Insufficient Funds.")
 public class TransferFailedException extends RuntimeException {
 
 }

@@ -4,12 +4,14 @@ import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.JdbcAccountDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.UserInfo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.security.PublicKey;
+import java.util.List;
 
 @PreAuthorize("isAuthenticated()")
 @RestController
@@ -34,6 +36,10 @@ public class UserAccountController {
         return accountDao.transferMoney(transfer);
     }
 
+    @RequestMapping(path = "/users", method = RequestMethod.GET)
+    public List<UserInfo> findForTransfer(){
+        return userDao.findForTransfer();
+    }
 }
 
 

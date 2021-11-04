@@ -3,6 +3,7 @@ package com.techelevator.tenmo.dao;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.TransferFailedException;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -48,14 +49,31 @@ public class JdbcAccountDao implements AccountDao{
     }
 
     @Override
+    public Integer getAccountID(Integer userId){
+        Integer accountId = -1;
+        String sql = "SELECT account_id FROM accounts WHERE user_id = ?;";
+
+        try {
+            accountId = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+        }catch (DataAccessException e) {
+            System.out.println("Data cannot be accessed");
+        }catch (NullPointerException e) {
+            System.out.println("Balance is Null");
+        }
+        return accountId;
+    }
+
+    @Override
     public Transfer transferMoney(Transfer transfer) {
         withdrawMoney(transfer.getAmount(), transfer.getFrom());
         depositMoney(transfer.getAmount(), transfer.getTo());
         String sql = "INSERT INTO transfers(transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
                 "VALUES (2,2,?,?,?) RETURNING transfer_id;";
 
-        Integer transferId = jdbcTemplate.update(sql, Integer.class,
-                transfer.getFrom(), transfer.getTo(), transfer.getAmount());
+        Integer fromId = getAccountID(transfer.getFrom());
+        Integer toId = getAccountID(transfer.getTo());
+        Integer transferId = jdbcTemplate.queryForObject(sql, Integer.class,
+                fromId, toId, transfer.getAmount());
 
         return getTransferById(transferId);
     }
@@ -63,7 +81,7 @@ public class JdbcAccountDao implements AccountDao{
     @Override
     public Transfer getTransferById(Integer transferId) {
         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
-                "FROM transfers WHERE transferId = ?";
+                "FROM transfers WHERE transfer_id = ?";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
         if (results.next()) {
             return mapRowToTransfer(results);

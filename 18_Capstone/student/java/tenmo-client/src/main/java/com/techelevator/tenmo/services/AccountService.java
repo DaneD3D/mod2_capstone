@@ -1,10 +1,11 @@
 package com.techelevator.tenmo.services;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.techelevator.tenmo.model.AuthenticatedUser;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
+import org.openqa.selenium.json.Json;
+import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -43,12 +44,48 @@ public class AccountService {
         System.out.println(balance);
     }
 
-    public void sendBucks() {
+    public Transfer sendBucks(Transfer transfer) {
+        HttpEntity<Transfer> entity = makeTransferEntity(transfer);
+
+        Transfer returnedTransfer = null;
+
+        try{
+            returnedTransfer = restTemplate.postForObject(API_BASE_URL + "transfer", entity, Transfer.class);
+        }catch (RestClientResponseException | ResourceAccessException e){
+            System.out.println(e.getMessage());
+            //System.out.println("I'm a Teapot");
+        }
+        return returnedTransfer;
 
     }
 
+    public Transfer[] getTransfers(){
+        Transfer[] transfers = null;
+
+        try{
+            ResponseEntity<Transfer[]> response =
+                    restTemplate.exchange(API_BASE_URL + "transfer", HttpMethod.GET, makeAuthEntity(), Transfer[].class);
+            transfers = response.getBody();
+        }catch (RestClientResponseException | ResourceAccessException e){
+            System.out.println(e.getMessage());
+        }
+        return transfers;
+
+    }
+
+    private HttpEntity<Void> makeAuthEntity(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(currentUser.getToken());
+        return new HttpEntity<>(headers);
+    }
 
 
+    private HttpEntity<Transfer> makeTransferEntity(Transfer transfer){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(currentUser.getToken());
+        return new HttpEntity<>(transfer, headers);
+    }
 
 
 }

@@ -4,14 +4,16 @@ import java.math.BigDecimal;
 
 public class Transfer {
 
-    private Long id;
-    private Long from;
-    private Long to;
-    private String type;
-    private String status;
+    private Integer id;
+    private Integer from;
+    private Integer to;
+    private Integer type;
+    private Integer status;
     private BigDecimal amount;
 
-    public Transfer(Long from, Long to, String type, String status, BigDecimal amount) {
+    public Transfer() {};
+
+    public Transfer(Integer from, Integer to, Integer type, Integer status, BigDecimal amount) {
         this.from = from;
         this.to = to;
         this.type = type;
@@ -19,43 +21,43 @@ public class Transfer {
         this.amount = amount;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getFrom() {
+    public Integer getFrom() {
         return from;
     }
 
-    public void setFrom(Long from) {
+    public void setFrom(Integer from) {
         this.from = from;
     }
 
-    public Long getTo() {
+    public Integer getTo() {
         return to;
     }
 
-    public void setTo(Long to) {
+    public void setTo(Integer to) {
         this.to = to;
     }
 
-    public String getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 
-    public String getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

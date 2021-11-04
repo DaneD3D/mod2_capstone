@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.model.UserInfo;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -9,7 +10,7 @@ public interface UserDao {
 
     List<User> findAll();
 
-    List<User> findForTransfer();
+    List<UserInfo> findForTransfer();
 
     User findByUsername(String username);
 

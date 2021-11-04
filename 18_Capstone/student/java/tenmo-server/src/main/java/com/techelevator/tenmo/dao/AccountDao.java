@@ -17,4 +17,6 @@ public interface AccountDao  {
     Transfer transferMoney(Transfer transfer);
 
     Transfer getTransferById(Integer transferId);
+
+    Integer getAccountID(Integer userId);
 }

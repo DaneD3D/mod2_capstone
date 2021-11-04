@@ -1,10 +1,13 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
+import com.techelevator.tenmo.services.UserService;
 import com.techelevator.view.ConsoleService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -35,8 +38,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     private AuthenticatedUser currentUser;
     private ConsoleService console;
     private AuthenticationService authenticationService;
+
     private RestTemplate restTemplate = new RestTemplate();
 	private AccountService accountService = new AccountService();
+	private UserService userService = new UserService();
 
     public static void main(String[] args) {
     	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL));
@@ -96,6 +101,35 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void sendBucks() {
 		// TODO Auto-generated method stub
+		User[] users = userService.getUsers();
+		System.out.println("-------------------------------------------");
+		System.out.println("Users");
+		System.out.println(String.format("%-10s%-10s", "ID", "Name"));
+		System.out.println("-------------------------------------------");
+		for (User user: users){
+			System.out.println(String.format("%-10d%-10s",user.getId(),user.getUsername()));
+		}
+		System.out.println("--------");
+        Transfer newTransfer = new Transfer();
+        newTransfer.setFrom(currentUser.getUser().getId());
+        newTransfer.setStatus(2);
+        newTransfer.setType(2);
+		String userIdSelection = console.getUserInput("Enter ID of user you are sending to (0 to cancel)");
+		try {
+			int userPick = Integer.parseInt(userIdSelection);
+			if(userPick == 0){
+				return;
+			}else{
+				newTransfer.setTo(userPick);
+				String userAmount = console.getUserInput("Enter Amount");
+				newTransfer.setAmount(new BigDecimal(userAmount));
+				Transfer returnedTransfer = accountService.sendBucks(newTransfer);
+				System.out.println(returnedTransfer.getId() + " " + returnedTransfer.getStatus() + " " + returnedTransfer.getAmount());
+			}
+		}catch (NumberFormatException e){
+			System.out.println(e.getMessage());
+		}
+
 		
 	}
 
@@ -153,6 +187,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				currentUser = authenticationService.login(credentials);
 				accountService.setAuthToken(currentUser.getToken());
 				accountService.setCurrentUser(currentUser);
+				userService.setCurrentUser(currentUser);
+
 				//System.out.println(currentUser.getToken());
 			} catch (AuthenticationServiceException e) {
 				System.out.println("LOGIN ERROR: "+e.getMessage());
