@@ -4,7 +4,9 @@ import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.JdbcAccountDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferInfo;
 import com.techelevator.tenmo.model.UserInfo;
+import org.apache.coyote.RequestInfo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +41,16 @@ public class UserAccountController {
     @RequestMapping(path = "/users", method = RequestMethod.GET)
     public List<UserInfo> findForTransfer(){
         return userDao.findForTransfer();
+    }
+
+    @RequestMapping(path = "/transfer/{id}", method = RequestMethod.GET)
+    public TransferInfo getTransferInfoByID(@PathVariable Integer id) {
+        return accountDao.getTransferInfoByID(id);
+    }
+
+    @RequestMapping(path = "/userTransfers/{id}", method = RequestMethod.GET)
+    public List<TransferInfo> getUserTransfers(@PathVariable Integer id) {
+        return getUserTransfers(id);
     }
 }
 

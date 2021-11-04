@@ -1,8 +1,10 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferInfo;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface AccountDao  {
 
@@ -19,4 +21,8 @@ public interface AccountDao  {
     Transfer getTransferById(Integer transferId);
 
     Integer getAccountID(Integer userId);
+
+    List<TransferInfo> getUserTransfers(Integer userId);
+
+    TransferInfo getTransferInfoByID(Integer transferId);
 }
