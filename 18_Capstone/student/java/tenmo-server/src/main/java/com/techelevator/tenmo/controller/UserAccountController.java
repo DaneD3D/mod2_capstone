@@ -10,6 +10,7 @@ import org.apache.coyote.RequestInfo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.security.PublicKey;
@@ -29,8 +30,7 @@ public class UserAccountController {
 
     @RequestMapping(path = "/balance/{id}", method = RequestMethod.GET)
     public BigDecimal getCurrentBalance(@PathVariable Integer id, Principal principal) {
-        System.out.println(principal.getName());
-        return accountDao.getCurrentBalance(id);
+        return accountDao.getCurrentBalance(principal.getName());
     }
 
     @RequestMapping(path = "/transfer", method = RequestMethod.POST)
@@ -39,17 +39,17 @@ public class UserAccountController {
     }
 
     @RequestMapping(path = "/users", method = RequestMethod.GET)
-    public List<UserInfo> findForTransfer(){
-        return userDao.findForTransfer();
+    public List<UserInfo> findForTransfer(Principal principal){
+        return userDao.findForTransfer(principal);
     }
 
     @RequestMapping(path = "/transfer/{id}", method = RequestMethod.GET)
-    public TransferInfo getTransferInfoByID(@PathVariable Integer id) {
+    public TransferInfo getTransferInfoByID(@Valid @PathVariable Integer id) {
         return accountDao.getTransferInfoByID(id);
     }
 
     @RequestMapping(path = "/userTransfers/{id}", method = RequestMethod.GET)
-    public List<TransferInfo> getUserTransfers(@PathVariable Integer id) {
+    public List<TransferInfo> getUserTransfers(@Valid @PathVariable Integer id) {
         return accountDao.getUserTransfers(id);
     }
 }

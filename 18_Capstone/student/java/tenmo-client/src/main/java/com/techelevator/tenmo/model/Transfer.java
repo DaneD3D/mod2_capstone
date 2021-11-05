@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 public class Transfer {
 
     private Integer id;
+
     private Integer from;
     private Integer to;
     private Integer type;

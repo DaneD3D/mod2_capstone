@@ -1,14 +1,21 @@
 package com.techelevator.tenmo.model;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public class TransferInfo {
 
     private Integer id;
+    @NotNull
+    @Positive
     private String from;
+    @NotNull
+    @Positive
     private String to;
     private String type;
     private String status;
+    @Positive(message = "Amount to transfer must be a positive amount.")
     private BigDecimal amount;
 
     public TransferInfo() {};

@@ -28,7 +28,7 @@ public class AccountService {
         this.currentUser = currentUser;
     }
 
-    public void viewCurrentBalance() {
+    public BigDecimal viewCurrentBalance() {
         BigDecimal balance = BigDecimal.ZERO;
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authToken);
@@ -42,7 +42,7 @@ public class AccountService {
         }catch (RestClientResponseException | ResourceAccessException e){
             System.out.println(e.getMessage());
         }
-        System.out.println(balance);
+        return balance;
     }
 
     public Transfer sendBucks(Transfer transfer) {
@@ -53,7 +53,6 @@ public class AccountService {
         try{
             returnedTransfer = restTemplate.postForObject(API_BASE_URL + "transfer", entity, Transfer.class);
         }catch (RestClientResponseException | ResourceAccessException e){
-            System.out.println(e.getMessage());
             //System.out.println("I'm a Teapot");
         }
         return returnedTransfer;

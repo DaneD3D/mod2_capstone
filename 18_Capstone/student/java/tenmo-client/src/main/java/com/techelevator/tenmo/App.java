@@ -16,6 +16,8 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 public class App {
 
@@ -32,7 +34,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private static final String MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS = "View your pending requests";
 	private static final String MAIN_MENU_OPTION_LOGIN = "Login as different user";
 	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
-	
+	public static final String ANSI_RESET = "\u001B[0m";
+	public static final String ANSI_GREEN = "\u001B[32m";
+	public static final String ANSI_BLUE = "\u001B[34m";
+
     private AuthenticatedUser currentUser;
     private ConsoleService console;
     private AuthenticationService authenticationService;
@@ -83,8 +88,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
-		accountService.viewCurrentBalance();
+		System.out.println("Your current balance is:" + ANSI_GREEN +" $" + accountService.viewCurrentBalance() + ANSI_RESET);
 	}
 
 	private void viewTransferHistory() {
@@ -93,8 +97,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		System.out.println("Transfers");
 		System.out.println(String.format("%-12s%-15s%-12s", "ID", "From/To", "Amount"));
 		System.out.println("-------------------------------------------");
-
-
 
 		TransferInfo[] transfers = accountService.getTransfers();
 		for (TransferInfo transfer: transfers){
@@ -106,40 +108,36 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			}
 			System.out.println(String.format("%-12d%-12s%-12s",transfer.getId(),from_to ,transfer.getAmount()));
 		}
-		String userIdSelection = console.getUserInput("Please enter transfer ID to view details (0 to cancel)");
+		Integer userIdSelection = console.getUserInputInteger("Please enter transfer ID to view details (0 to cancel)");
 		try {
-			Integer userPick = Integer.parseInt(userIdSelection);
-			if(userPick == 0){
+			if (userIdSelection == 0){
 				return;
-			}else{
+			} else if (!containsSelectedTransferInfo(Arrays.asList(transfers), userIdSelection)) {
+				System.out.println("Sorry, the transfer you selected does not exist. Please Try Again.");
+				viewTransferHistory();
+			} else {
 				System.out.println("-------------------------------------------");
 				System.out.println("Transfer Details");
 				System.out.println("-------------------------------------------");
-				TransferInfo returnedTransfer = accountService.getTransferByID(userPick);
+				TransferInfo returnedTransfer = accountService.getTransferByID(userIdSelection);
 				System.out.println("Id: "+ returnedTransfer.getId());
 				System.out.println("From: "+ returnedTransfer.getFrom());
 				System.out.println("To: "+ returnedTransfer.getTo());
 				System.out.println("Type: "+ returnedTransfer.getType());
 				System.out.println("Status: "+ returnedTransfer.getStatus());
 				System.out.println("Amount: "+ returnedTransfer.getAmount());
-
 			}
-		}catch (NumberFormatException e){
+		} catch (NumberFormatException e) {
 			System.out.println(e.getMessage());
 		}
-
 	}
 
 	private void viewPendingRequests() {
 		// TODO Auto-generated method stub
-
-
-		
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
-		User[] users = userService.getUsers();
+		List<User> users = userService.getUsers();
 		System.out.println("-------------------------------------------");
 		System.out.println("Users");
 		System.out.println(String.format("%-10s%-10s", "ID", "Name"));
@@ -152,23 +150,34 @@ private static final String API_BASE_URL = "http://localhost:8080/";
         newTransfer.setFrom(currentUser.getUser().getId());
         newTransfer.setStatus(2);
         newTransfer.setType(2);
-		String userIdSelection = console.getUserInput("Enter ID of user you are sending to (0 to cancel)");
+		Integer userIdSelection = console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)");
 		try {
-			int userPick = Integer.parseInt(userIdSelection);
-			if(userPick == 0){
+			if(userIdSelection == 0){
 				return;
-			}else{
-				newTransfer.setTo(userPick);
+			} else if (!containsSelectedUser(users, userIdSelection)) {
+				System.out.println("Sorry, the user you selected does not exist. Please Try Again.");
+				sendBucks();
+			} else {
+				newTransfer.setTo(userIdSelection);
 				String userAmount = console.getUserInput("Enter Amount");
 				newTransfer.setAmount(new BigDecimal(userAmount));
-				Transfer returnedTransfer = accountService.sendBucks(newTransfer);
-				System.out.println(returnedTransfer.getId() + " " + returnedTransfer.getStatus() + " " + returnedTransfer.getAmount());
+				if (newTransfer.getAmount().compareTo(BigDecimal.ONE) < 0) {
+					System.out.println("Sorry. That isn't a valid amount, please try again.");
+					sendBucks();
+				} else {
+					Transfer returnedTransfer = accountService.sendBucks(newTransfer);
+					if (returnedTransfer != null) {
+						System.out.println("\nTransfer ID: " + returnedTransfer.getId() + " Was Succesful!\n" + ANSI_GREEN + "$" + returnedTransfer.getAmount() + ANSI_RESET +
+								" was transferred to " + ANSI_BLUE + findUsernameInList(users, userIdSelection) + ANSI_RESET);
+					} else {
+						System.out.println("Sorry, you have insufficient funds. Please Try again.");
+						sendBucks();
+					}
+				}
 			}
-		}catch (NumberFormatException e){
+		} catch (NumberFormatException e){
 			System.out.println(e.getMessage());
 		}
-
-		
 	}
 
 	private void requestBucks() {
@@ -192,6 +201,19 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				exitProgram();
 			}
 		}
+	}
+
+	private String findUsernameInList(final List<User> list, final Integer userSelection) {
+		String username = list.stream().filter(o -> o.getId().equals(userSelection)).findAny().get().getUsername();
+		return username;
+	}
+
+	private boolean containsSelectedUser(final List<User> list, final Integer userSelection) {
+		return list.stream().anyMatch(o -> o.getId().equals(userSelection));
+	}
+
+	private boolean containsSelectedTransferInfo(final List<TransferInfo> list, final Integer userSelection) {
+		return list.stream().anyMatch(o -> o.getId().equals(userSelection));
 	}
 
 	private boolean isAuthenticated() {
@@ -224,6 +246,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		    try {
 				currentUser = authenticationService.login(credentials);
 				accountService.setAuthToken(currentUser.getToken());
+				//System.out.println(currentUser.getToken());
 				accountService.setCurrentUser(currentUser);
 				userService.setCurrentUser(currentUser);
 
